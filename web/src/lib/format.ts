@@ -1,4 +1,4 @@
-/* GEN amount helpers + pari-mutuel payout math (ported from frontend/lib/contract.js). */
+/* GEN amount helpers + pari-mutuel payout math (shared with the vanilla frontend). */
 
 const GEN_DECIMALS = 18n;
 const ONE_GEN = 10n ** GEN_DECIMALS;

@@ -4,9 +4,9 @@
 
 :root {
   /* Typography */
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body: 'DM Sans', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Manrope', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 
   /* Spacing scale */
   --sp-1: 4px;
@@ -20,9 +20,9 @@
   --sp-24: 96px;
 
   /* Radii */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-sm: 8px;
+  --radius-md: 13px;
+  --radius-lg: 20px;
 
   /* Container */
   --max-width: 1200px;
@@ -34,9 +34,9 @@
   --dur-slow: 420ms;
 
   /* Color (accent stays constant across themes) — La Liga magenta */
-  --accent: hsl(330 85% 55%);
-  --accent-deep: hsl(330 85% 45%);
-  --accent-soft: hsl(330 85% 55% / 0.13);
+  --accent: hsl(158 74% 44%);
+  --accent-deep: hsl(160 78% 34%);
+  --accent-soft: hsl(158 74% 44% / 0.14);
   --live: hsl(0 75% 60%);
   --live-soft: hsl(0 75% 60% / 0.15);
 }
@@ -44,32 +44,32 @@
 /* DARK theme (default) — deep La Liga purple */
 :root,
 [data-theme="dark"] {
-  --bg: hsl(280 24% 7%);
-  --bg-elevated: hsl(280 20% 10%);
-  --bg-card: hsl(280 18% 12%);
-  --bg-input: hsl(280 16% 15%);
-  --fg: hsl(280 20% 95%);
-  --fg-muted: hsl(280 10% 66%);
-  --fg-dim: hsl(280 8% 46%);
-  --border: hsl(280 14% 19%);
-  --border-strong: hsl(280 14% 28%);
-  --shadow-card: 0 1px 0 hsl(280 14% 18%), 0 12px 24px -12px hsl(280 40% 3% / 0.5);
+  --bg: hsl(216 28% 8%);
+  --bg-elevated: hsl(216 22% 11%);
+  --bg-card: hsl(216 20% 13%);
+  --bg-input: hsl(216 18% 16%);
+  --fg: hsl(210 22% 96%);
+  --fg-muted: hsl(214 12% 66%);
+  --fg-dim: hsl(214 10% 46%);
+  --border: hsl(216 16% 20%);
+  --border-strong: hsl(216 16% 30%);
+  --shadow-card: 0 1px 0 hsl(216 16% 18%), 0 12px 24px -12px hsl(216 45% 3% / 0.55);
   --selection-bg: var(--accent-soft);
   --selection-fg: var(--accent);
 }
 
 /* LIGHT theme — cool lavender neutrals */
 [data-theme="light"] {
-  --bg: hsl(280 30% 97%);
-  --bg-elevated: hsl(280 24% 99%);
+  --bg: hsl(210 32% 97%);
+  --bg-elevated: hsl(210 26% 99%);
   --bg-card: hsl(0 0% 100%);
-  --bg-input: hsl(280 20% 95%);
-  --fg: hsl(285 30% 12%);
-  --fg-muted: hsl(285 10% 38%);
-  --fg-dim: hsl(285 8% 55%);
-  --border: hsl(285 18% 88%);
-  --border-strong: hsl(285 16% 74%);
-  --shadow-card: 0 1px 0 hsl(285 18% 88%), 0 8px 18px -10px hsl(285 30% 12% / 0.12);
+  --bg-input: hsl(210 22% 95%);
+  --fg: hsl(215 32% 13%);
+  --fg-muted: hsl(215 12% 38%);
+  --fg-dim: hsl(215 10% 55%);
+  --border: hsl(214 20% 88%);
+  --border-strong: hsl(214 18% 74%);
+  --shadow-card: 0 1px 0 hsl(214 20% 88%), 0 8px 18px -10px hsl(215 32% 13% / 0.12);
   --selection-bg: var(--accent-soft);
   --selection-fg: var(--accent-deep);
 }
