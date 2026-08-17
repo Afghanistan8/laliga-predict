@@ -174,6 +174,12 @@ It holds no funds and never pays out — its blast radius is zero. It exists pur
 
 ---
 
+## Deployed markets — the public register
+
+Every match's on-chain contract address is committed to [`deploy_checkpoint.json`](./deploy_checkpoint.json) — one JSON object mapping `match_id → contract_address` for every deployed market. It's the public register of what's live: paste any address into the [Bradbury explorer](https://explorer-bradbury.genlayer.com) to read `get_match_info()` / `get_pools()` directly on-chain. Fixtures whose kickoff has already passed are not deployed (betting would be closed), so the checkpoint grows as the season rolls forward.
+
+---
+
 ## Data & the cron backend
 
 Bradbury reads only reflect **finalized** state, which can lag minutes to hours, so a small cron layer keeps the mirror fresh and drives the autonomous behaviour. All endpoints require an `Authorization: Bearer <CRON_SECRET>` header and are pinged on a schedule (e.g. via [cron-job.org](https://cron-job.org)):

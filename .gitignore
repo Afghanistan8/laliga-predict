@@ -16,7 +16,12 @@ __pycache__/
 # Local development
 .DS_Store
 *.log
-deploy_checkpoint*.json
+# deploy_checkpoint.json IS committed — it's the public register of every
+# deployed market (contract_address per match_id, all on-chain public data).
+# Rotated / superseded checkpoints stay ignored so they don't accumulate.
+deploy_checkpoint.OLD-*.json
+deploy_checkpoint.*.OLD.json
+deploy_checkpoint.bak.json
 
 # IDE
 .vscode/
