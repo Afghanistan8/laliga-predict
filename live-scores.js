@@ -96,7 +96,8 @@ const main = async () => {
   // 3. For each candidate, see what changed and push the update
   let changed = 0;
   for (const ours of candidates) {
-    const fd = fdById.get(ours.external_match_id);
+    // external_match_id comes back as a number; fdById is keyed by String(id).
+    const fd = fdById.get(String(ours.external_match_id));
     if (!fd) {
       console.log(`  ⚠️  ${ours.match_id} — football-data didn't return this ID`);
       continue;

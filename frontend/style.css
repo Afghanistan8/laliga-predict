@@ -1456,10 +1456,14 @@ span.my-pick-crest { font-size: 10px; }
 .standings-table tbody tr:last-child td { border-bottom: 0; }
 .standings-table tbody tr:hover { background: var(--accent-soft); }
 
-.col-team {
+/* The <td>s stay real table cells (so columns line up with the headers);
+   the flex layout lives on an inner wrapper instead. */
+.standings-table td.col-team { text-align: left; }
+.team-cell {
   display: flex;
   align-items: center;
   gap: var(--sp-3);
+  white-space: nowrap;
 }
 .standings-crest { flex-shrink: 0; object-fit: contain; }
 .standings-name { font-weight: 600; }
@@ -1467,7 +1471,9 @@ span.my-pick-crest { font-size: 10px; }
 .gd-pos { color: var(--accent); }
 .gd-neg { color: var(--fg-muted); }
 
-.col-form { display: flex; gap: 4px; padding-left: var(--sp-4); }
+.standings-table td.col-form,
+.standings-table th.col-form { text-align: left; padding-left: var(--sp-4); }
+.form-cell { display: inline-flex; gap: 4px; vertical-align: middle; }
 .form-dot {
   display: inline-flex;
   align-items: center;

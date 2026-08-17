@@ -1008,18 +1008,25 @@ async function renderTable() {
 
 function standingsRowHtml(r) {
   const gd = r.goal_difference >= 0 ? `+${r.goal_difference}` : `${r.goal_difference}`;
-  const formDots = (r.form || '').split(',').filter(Boolean).slice(-5).map((f) => {
-    const cls = f === 'W' ? 'form-w' : f === 'L' ? 'form-l' : 'form-d';
-    return `<span class="form-dot ${cls}" title="${f === 'W' ? 'Win' : f === 'L' ? 'Loss' : 'Draw'}">${f}</span>`;
-  }).join('');
+  const formDots = (r.form || '')
+    .split(',')
+    .map((f) => f.trim().toUpperCase())
+    .filter((f) => f === 'W' || f === 'D' || f === 'L')   // ignore any junk/legacy data
+    .slice(-5)
+    .map((f) => {
+      const cls = f === 'W' ? 'form-w' : f === 'L' ? 'form-l' : 'form-d';
+      return `<span class="form-dot ${cls}" title="${f === 'W' ? 'Win' : f === 'L' ? 'Loss' : 'Draw'}">${f}</span>`;
+    }).join('');
 
   return `
     <tr>
       <td class="col-pos">${r.position}</td>
       <td class="col-team">
-        ${r.crest ? `<img src="${r.crest}" alt="${r.team}" class="standings-crest" width="20" height="20" loading="lazy">` : ''}
-        <span class="standings-name">${r.team}</span>
-        <span class="standings-short">${r.short_name || ''}</span>
+        <div class="team-cell">
+          ${r.crest ? `<img src="${r.crest}" alt="${r.team}" class="standings-crest" width="20" height="20" loading="lazy">` : ''}
+          <span class="standings-name">${r.team}</span>
+          <span class="standings-short">${r.short_name || ''}</span>
+        </div>
       </td>
       <td class="col-num">${r.played}</td>
       <td class="col-num">${r.won}</td>
@@ -1029,7 +1036,7 @@ function standingsRowHtml(r) {
       <td class="col-num">${r.goals_against}</td>
       <td class="col-num ${r.goal_difference > 0 ? 'gd-pos' : r.goal_difference < 0 ? 'gd-neg' : ''}">${gd}</td>
       <td class="col-pts">${r.points}</td>
-      <td class="col-form">${formDots}</td>
+      <td class="col-form"><div class="form-cell">${formDots}</div></td>
     </tr>
   `;
 }

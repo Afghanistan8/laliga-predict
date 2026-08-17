@@ -90,7 +90,9 @@ export default async function handler(req, res) {
     const updates = [];
 
     for (const ours of candidates) {
-      const fd = fdById.get(ours.external_match_id);
+      // Supabase returns external_match_id as a NUMBER (bigint), but fdById is
+      // keyed by String(m.id) — coerce so the lookup actually matches.
+      const fd = fdById.get(String(ours.external_match_id));
       if (!fd) continue;
 
       const newScoreHome = fd.score?.fullTime?.home ?? null;

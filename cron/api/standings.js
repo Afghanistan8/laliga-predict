@@ -59,6 +59,22 @@ function metaFor(team) {
   return key ? TEAM_META[key] : null;
 }
 
+// BBC's form cell strips to a run-on of result words + single-letter badges,
+// e.g. "No ResultNo ResultNo ResultNo ResultNo ResultWResult Win". Extract just
+// the real outcomes (Win/Draw/Loss/Defeat, ignoring "No Result" placeholders),
+// map to W/D/L, keep the last 5, and return them comma-separated so the frontend
+// can render one dot per result instead of the whole garbled string.
+function parseForm(raw) {
+  const words = String(raw || '').match(/Win|Draw|Loss|Defeat/gi) || [];
+  const letters = words.map((w) => {
+    const l = w.toLowerCase();
+    if (l === 'win') return 'W';
+    if (l === 'draw') return 'D';
+    return 'L'; // loss / defeat
+  });
+  return letters.slice(-5).join(',');
+}
+
 // Decode the handful of HTML entities BBC emits in team names (accents, ampersands).
 function decodeEntities(s) {
   return s
@@ -133,7 +149,7 @@ export default async function handler(req, res) {
         goals_against:   Number(cells[6]) || 0,
         goal_difference: Number(cells[7]) || 0,
         points:          Number(cells[8]) || 0,
-        form:            cells[9] === 'No ResultNo ResultNo ResultNo ResultNo ResultNo Result' ? '' : cells[9],
+        form:            parseForm(cells[9]),
         updated_at:      now,
       });
     }

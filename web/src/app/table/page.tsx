@@ -4,16 +4,20 @@ import { useEffect, useState } from "react";
 import { getStandings, type Standing } from "@/lib/supabase";
 
 function FormDots({ form }: { form: string }) {
-  const items = (form || "").split(",").filter(Boolean).slice(-5);
+  const items = (form || "")
+    .split(",")
+    .map((f) => f.trim().toUpperCase())
+    .filter((f) => f === "W" || f === "D" || f === "L")
+    .slice(-5);
   if (items.length === 0) return null;
   return (
-    <>
+    <span className="form-cell">
       {items.map((f, i) => {
         const cls = f === "W" ? "form-w" : f === "L" ? "form-l" : "form-d";
         const title = f === "W" ? "Win" : f === "L" ? "Loss" : "Draw";
         return <span key={i} className={`form-dot ${cls}`} title={title}>{f}</span>;
       })}
-    </>
+    </span>
   );
 }
 
@@ -66,12 +70,14 @@ export default function TablePage() {
                   <tr key={r.team_id}>
                     <td className="col-pos">{r.position}</td>
                     <td className="col-team">
-                      {r.crest && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={r.crest} alt={r.team} className="standings-crest" width={20} height={20} loading="lazy" />
-                      )}
-                      <span className="standings-name">{r.team}</span>
-                      <span className="standings-short">{r.short_name || ""}</span>
+                      <div className="team-cell">
+                        {r.crest && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={r.crest} alt={r.team} className="standings-crest" width={20} height={20} loading="lazy" />
+                        )}
+                        <span className="standings-name">{r.team}</span>
+                        <span className="standings-short">{r.short_name || ""}</span>
+                      </div>
                     </td>
                     <td className="col-num">{r.played}</td>
                     <td className="col-num">{r.won}</td>
