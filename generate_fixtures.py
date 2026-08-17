@@ -23,23 +23,76 @@ if not API_KEY:
 
 MATCHDAYS = range(1, 6)   # 1-5 inclusive -> 50 matches (20 clubs, 10 per md)
 
+# Pin the season we're deploying markets for. The football-data.org API's
+# `currentSeason` for competition PD points to 2026/27 through mid-2027, so
+# for now this matches the endpoint's implicit default. Pinning it explicitly
+# is defensive: once the season ends the API will roll forward to 2027/28, and
+# without ?season=2026 any late re-run would fetch the WRONG season and mint
+# wildly-mis-dated markets.
+SEASON = 2026
+
+# Plausible calendar window for the 2026/27 La Liga season. Any kickoff outside
+# this range is a strong signal something is wrong (API returned a different
+# season, timezone bug, etc.) and the script refuses to write fixtures.json.
+import datetime as _dt
+_SEASON_MIN_TS = int(_dt.datetime(2026, 8, 1,  tzinfo=_dt.timezone.utc).timestamp())
+_SEASON_MAX_TS = int(_dt.datetime(2027, 6, 30, tzinfo=_dt.timezone.utc).timestamp())
+
 # football-data.org shortName -> name BBC Sport uses to identify La Liga teams.
 # BBC generally uses the short popular / anglicised name; only the clubs whose
-# BBC label differs from football-data's shortName are mapped here.
+# BBC label differs from football-data's shortName are mapped here. Extra
+# variants (Spanish spellings, accented forms, common English shorthands seen
+# on BBC / ESPN score pages) are included so a source-side rename never
+# silently degrades team-name normalisation.
 BBC_NAME = {
-    "Atleti":     "Atletico Madrid",
-    "Atlético":   "Atletico Madrid",
-    "Athletic":   "Athletic Bilbao",
-    "Alavés":     "Alaves",
-    "Alaves":     "Alaves",
-    "Barça":      "Barcelona",
-    "Barca":      "Barcelona",
-    "Celta":      "Celta Vigo",
-    "Sevilla FC": "Sevilla",
-    "Málaga":     "Malaga",
-    "Malaga":     "Malaga",
-    "Deportivo":  "Deportivo La Coruna",
-    "Santander":  "Racing Santander",
+    # Atletico Madrid
+    "Atleti":                "Atletico Madrid",
+    "Atlético":              "Atletico Madrid",
+    "Atlético Madrid":       "Atletico Madrid",
+    "Atletico":              "Atletico Madrid",
+    # Athletic Club (Bilbao)
+    "Athletic":              "Athletic Bilbao",
+    "Athletic Club":         "Athletic Bilbao",
+    # Barcelona
+    "Barça":                 "Barcelona",
+    "Barca":                 "Barcelona",
+    "FC Barcelona":          "Barcelona",
+    # Real Betis
+    "Betis":                 "Real Betis",
+    # Celta Vigo
+    "Celta":                 "Celta Vigo",
+    "RC Celta":              "Celta Vigo",
+    # Sevilla
+    "Sevilla FC":            "Sevilla",
+    # Rayo Vallecano
+    "Rayo":                  "Rayo Vallecano",
+    # Alaves
+    "Alavés":                "Alaves",
+    "Alaves":                "Alaves",
+    "Deportivo Alavés":      "Alaves",
+    # Malaga
+    "Málaga":                "Malaga",
+    "Malaga":                "Malaga",
+    "Málaga CF":             "Malaga",
+    # Deportivo La Coruna
+    "Deportivo":             "Deportivo La Coruna",
+    "Deportivo de La Coruña":"Deportivo La Coruna",
+    "Deportivo La Coruña":   "Deportivo La Coruna",
+    # Racing Santander
+    "Santander":             "Racing Santander",
+    "Racing":                "Racing Santander",
+    "Racing de Santander":   "Racing Santander",
+    # Levante / Elche / Espanyol / Getafe / Osasuna: BBC uses the plain short
+    # names, no remap needed but listed here as intentional-identity.
+    "Levante":               "Levante",
+    "Elche":                 "Elche",
+    "Espanyol":              "Espanyol",
+    "Getafe":                "Getafe",
+    "Osasuna":               "Osasuna",
+    "Valencia":              "Valencia",
+    "Villarreal":            "Villarreal",
+    "Real Madrid":           "Real Madrid",
+    "Real Sociedad":         "Real Sociedad",
 }
 
 def bbc_name(short: str) -> str:
@@ -47,7 +100,10 @@ def bbc_name(short: str) -> str:
 
 
 def fetch_matchday(md: int) -> list:
-    url = f"https://api.football-data.org/v4/competitions/PD/matches?matchday={md}"
+    url = (
+        "https://api.football-data.org/v4/competitions/PD/matches"
+        f"?matchday={md}&season={SEASON}"
+    )
     req = urllib.request.Request(url, headers={"X-Auth-Token": API_KEY})
     with urllib.request.urlopen(req) as resp:
         return json.loads(resp.read())["matches"]
@@ -83,12 +139,35 @@ def main():
                 "matchday":          md,
             })
 
-    # Sanity checks
-    assert len(fixtures) == 50, f"expected 50, got {len(fixtures)}"
+    # ---------------- Sanity checks (fail hard rather than write bad data) ----
+    expected = 10 * len(list(MATCHDAYS))
+    assert len(fixtures) == expected, f"expected {expected}, got {len(fixtures)}"
     ids = {f["match_id"] for f in fixtures}
-    assert len(ids) == 50, "duplicate match_id"
+    assert len(ids) == expected, "duplicate match_id"
     ext_ids = {f["external_match_id"] for f in fixtures}
-    assert len(ext_ids) == 50, "duplicate external_match_id"
+    assert len(ext_ids) == expected, "duplicate external_match_id"
+
+    # Season-window check: every kickoff MUST fall inside the 2026/27 window.
+    # If the API silently rolls the season forward, this catches it before
+    # any wildly-mis-dated market is deployed.
+    bad = [
+        (f["match_id"], f["kickoff_ts"])
+        for f in fixtures
+        if not (_SEASON_MIN_TS <= f["kickoff_ts"] <= _SEASON_MAX_TS)
+    ]
+    if bad:
+        sys.exit(
+            f"REFUSING TO WRITE: {len(bad)} kickoff(s) outside 2026/27 window "
+            f"({_dt.datetime.utcfromtimestamp(_SEASON_MIN_TS).date()} .. "
+            f"{_dt.datetime.utcfromtimestamp(_SEASON_MAX_TS).date()}). "
+            f"First offender: {bad[0]}"
+        )
+
+    # Every home/away name must have made it through normalisation as a
+    # non-empty string (defensive: catches an API schema change).
+    for f in fixtures:
+        if not f["home"] or not f["away"]:
+            sys.exit(f"empty team name on {f['match_id']}: {f}")
 
     fixtures.sort(key=lambda f: f["kickoff_ts"])
 
