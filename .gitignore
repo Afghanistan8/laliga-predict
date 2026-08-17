@@ -1,0 +1,28 @@
+﻿# Dependencies
+node_modules/
+
+# Env files (NEVER commit)
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+.vercel/
+build/
+dist/
+__pycache__/
+*.pyc
+
+# Local development
+.DS_Store
+*.log
+deploy_checkpoint*.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+
+.claude/

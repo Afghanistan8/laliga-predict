@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Dark rounded background, matching the LaLiga dark purple theme bg -->
+  <rect width="32" height="32" rx="6" fill="#140f1a"/>
+
+  <!-- Big "L" in cream/white, italic serif — mirrors the La Liga '27 site logo -->
+  <text x="15" y="22"
+        text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-weight="900"
+        font-style="italic"
+        font-size="20"
+        letter-spacing="-1"
+        fill="#f3eef7">L</text>
+
+  <!-- La Liga magenta accent dot (echoes the site accent) -->
+  <circle cx="25" cy="7" r="3.4" fill="#ec2f8b"/>
+</svg>

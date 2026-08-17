@@ -1,0 +1,502 @@
+[
+  {
+    "match_id": "laliga2027_md1_01",
+    "external_match_id": 564634,
+    "home": "Alaves",
+    "away": "Getafe",
+    "home_full": "Deportivo Alav\u00e9s",
+    "away_full": "Getafe CF",
+    "kickoff_ts": 1786815000,
+    "matchday": 1
+  },
+  {
+    "match_id": "laliga2027_md1_02",
+    "external_match_id": 564633,
+    "home": "Sevilla",
+    "away": "Rayo Vallecano",
+    "home_full": "Sevilla FC",
+    "away_full": "Rayo Vallecano de Madrid",
+    "kickoff_ts": 1786822200,
+    "matchday": 1
+  },
+  {
+    "match_id": "laliga2027_md1_03",
+    "external_match_id": 564629,
+    "home": "Racing Santander",
+    "away": "Villarreal",
+    "home_full": "Real Racing Club de Santander",
+    "away_full": "Villarreal CF",
+    "kickoff_ts": 1786892400,
+    "matchday": 1
+  },
+  {
+    "match_id": "laliga2027_md1_04",
+    "external_match_id": 564632,
+    "home": "Espanyol",
+    "away": "Levante",
+    "home_full": "RCD Espanyol de Barcelona",
+    "away_full": "Levante UD",
+    "kickoff_ts": 1786899600,
+    "matchday": 1
+  },
+  {
+    "match_id": "laliga2027_md1_05",
+    "external_match_id": 564635,
+    "home": "Deportivo La Coruna",
+    "away": "Elche",
+    "home_full": "RC Deportivo La Coru\u00f1a",
+    "away_full": "Elche CF",
+    "kickoff_ts": 1786993200,
+    "matchday": 1
+  },
+  {
+    "match_id": "laliga2027_md1_06",
+    "external_match_id": 564628,
+    "home": "Atletico Madrid",
+    "away": "Malaga",
+    "home_full": "Club Atl\u00e9tico de Madrid",
+    "away_full": "M\u00e1laga CF",
+    "kickoff_ts": 1787166000,
+    "matchday": 1
+  },
+  {
+    "match_id": "laliga2027_md2_01",
+    "external_match_id": 564638,
+    "home": "Rayo Vallecano",
+    "away": "Alaves",
+    "home_full": "Rayo Vallecano de Madrid",
+    "away_full": "Deportivo Alav\u00e9s",
+    "kickoff_ts": 1787252400,
+    "matchday": 2
+  },
+  {
+    "match_id": "laliga2027_md2_02",
+    "external_match_id": 564647,
+    "home": "Real Betis",
+    "away": "Real Sociedad",
+    "home_full": "Real Betis Balompi\u00e9",
+    "away_full": "Real Sociedad de F\u00fatbol",
+    "kickoff_ts": 1787338800,
+    "matchday": 2
+  },
+  {
+    "match_id": "laliga2027_md2_03",
+    "external_match_id": 564641,
+    "home": "Athletic Bilbao",
+    "away": "Sevilla",
+    "home_full": "Athletic Club",
+    "away_full": "Sevilla FC",
+    "kickoff_ts": 1787410800,
+    "matchday": 2
+  },
+  {
+    "match_id": "laliga2027_md2_04",
+    "external_match_id": 564643,
+    "home": "Valencia",
+    "away": "Celta Vigo",
+    "home_full": "Valencia CF",
+    "away_full": "RC Celta de Vigo",
+    "kickoff_ts": 1787419800,
+    "matchday": 2
+  },
+  {
+    "match_id": "laliga2027_md2_05",
+    "external_match_id": 564645,
+    "home": "Espanyol",
+    "away": "Real Madrid",
+    "home_full": "RCD Espanyol de Barcelona",
+    "away_full": "Real Madrid CF",
+    "kickoff_ts": 1787427000,
+    "matchday": 2
+  },
+  {
+    "match_id": "laliga2027_md2_06",
+    "external_match_id": 564646,
+    "home": "Atletico Madrid",
+    "away": "Villarreal",
+    "home_full": "Club Atl\u00e9tico de Madrid",
+    "away_full": "Villarreal CF",
+    "kickoff_ts": 1787497200,
+    "matchday": 2
+  },
+  {
+    "match_id": "laliga2027_md2_07",
+    "external_match_id": 564644,
+    "home": "Getafe",
+    "away": "Racing Santander",
+    "home_full": "Getafe CF",
+    "away_full": "Real Racing Club de Santander",
+    "kickoff_ts": 1787506200,
+    "matchday": 2
+  },
+  {
+    "match_id": "laliga2027_md2_08",
+    "external_match_id": 564642,
+    "home": "Elche",
+    "away": "Barcelona",
+    "home_full": "Elche CF",
+    "away_full": "FC Barcelona",
+    "kickoff_ts": 1787513400,
+    "matchday": 2
+  },
+  {
+    "match_id": "laliga2027_md2_09",
+    "external_match_id": 564639,
+    "home": "Osasuna",
+    "away": "Levante",
+    "home_full": "CA Osasuna",
+    "away_full": "Levante UD",
+    "kickoff_ts": 1787592600,
+    "matchday": 2
+  },
+  {
+    "match_id": "laliga2027_md2_10",
+    "external_match_id": 564640,
+    "home": "Malaga",
+    "away": "Deportivo La Coruna",
+    "home_full": "M\u00e1laga CF",
+    "away_full": "RC Deportivo La Coru\u00f1a",
+    "kickoff_ts": 1787599800,
+    "matchday": 2
+  },
+  {
+    "match_id": "laliga2027_md1_07",
+    "external_match_id": 564637,
+    "home": "Valencia",
+    "away": "Real Betis",
+    "home_full": "Valencia CF",
+    "away_full": "Real Betis Balompi\u00e9",
+    "kickoff_ts": 1787684400,
+    "matchday": 1
+  },
+  {
+    "match_id": "laliga2027_md1_08",
+    "external_match_id": 564631,
+    "home": "Real Madrid",
+    "away": "Real Sociedad",
+    "home_full": "Real Madrid CF",
+    "away_full": "Real Sociedad de F\u00fatbol",
+    "kickoff_ts": 1787770800,
+    "matchday": 1
+  },
+  {
+    "match_id": "laliga2027_md1_09",
+    "external_match_id": 564636,
+    "home": "Celta Vigo",
+    "away": "Osasuna",
+    "home_full": "RC Celta de Vigo",
+    "away_full": "CA Osasuna",
+    "kickoff_ts": 1787855400,
+    "matchday": 1
+  },
+  {
+    "match_id": "laliga2027_md1_10",
+    "external_match_id": 564630,
+    "home": "Barcelona",
+    "away": "Athletic Bilbao",
+    "home_full": "FC Barcelona",
+    "away_full": "Athletic Club",
+    "kickoff_ts": 1787857200,
+    "matchday": 1
+  },
+  {
+    "match_id": "laliga2027_md3_01",
+    "external_match_id": 564654,
+    "home": "Racing Santander",
+    "away": "Elche",
+    "home_full": "Real Racing Club de Santander",
+    "away_full": "Elche CF",
+    "kickoff_ts": 1787936400,
+    "matchday": 3
+  },
+  {
+    "match_id": "laliga2027_md3_02",
+    "external_match_id": 564648,
+    "home": "Alaves",
+    "away": "Villarreal",
+    "home_full": "Deportivo Alav\u00e9s",
+    "away_full": "Villarreal CF",
+    "kickoff_ts": 1787945400,
+    "matchday": 3
+  },
+  {
+    "match_id": "laliga2027_md3_03",
+    "external_match_id": 564655,
+    "home": "Levante",
+    "away": "Real Betis",
+    "home_full": "Levante UD",
+    "away_full": "Real Betis Balompi\u00e9",
+    "kickoff_ts": 1788015600,
+    "matchday": 3
+  },
+  {
+    "match_id": "laliga2027_md3_04",
+    "external_match_id": 564653,
+    "home": "Real Sociedad",
+    "away": "Espanyol",
+    "home_full": "Real Sociedad de F\u00fatbol",
+    "away_full": "RCD Espanyol de Barcelona",
+    "kickoff_ts": 1788022800,
+    "matchday": 3
+  },
+  {
+    "match_id": "laliga2027_md3_05",
+    "external_match_id": 564649,
+    "home": "Sevilla",
+    "away": "Atletico Madrid",
+    "home_full": "Sevilla FC",
+    "away_full": "Club Atl\u00e9tico de Madrid",
+    "kickoff_ts": 1788031800,
+    "matchday": 3
+  },
+  {
+    "match_id": "laliga2027_md3_06",
+    "external_match_id": 564656,
+    "home": "Real Madrid",
+    "away": "Malaga",
+    "home_full": "Real Madrid CF",
+    "away_full": "M\u00e1laga CF",
+    "kickoff_ts": 1788102000,
+    "matchday": 3
+  },
+  {
+    "match_id": "laliga2027_md3_07",
+    "external_match_id": 564651,
+    "home": "Deportivo La Coruna",
+    "away": "Valencia",
+    "home_full": "RC Deportivo La Coru\u00f1a",
+    "away_full": "Valencia CF",
+    "kickoff_ts": 1788111000,
+    "matchday": 3
+  },
+  {
+    "match_id": "laliga2027_md3_08",
+    "external_match_id": 564652,
+    "home": "Celta Vigo",
+    "away": "Athletic Bilbao",
+    "home_full": "RC Celta de Vigo",
+    "away_full": "Athletic Club",
+    "kickoff_ts": 1788118200,
+    "matchday": 3
+  },
+  {
+    "match_id": "laliga2027_md3_09",
+    "external_match_id": 564657,
+    "home": "Osasuna",
+    "away": "Getafe",
+    "home_full": "CA Osasuna",
+    "away_full": "Getafe CF",
+    "kickoff_ts": 1788197400,
+    "matchday": 3
+  },
+  {
+    "match_id": "laliga2027_md3_10",
+    "external_match_id": 564650,
+    "home": "Barcelona",
+    "away": "Rayo Vallecano",
+    "home_full": "FC Barcelona",
+    "away_full": "Rayo Vallecano de Madrid",
+    "kickoff_ts": 1788204600,
+    "matchday": 3
+  },
+  {
+    "match_id": "laliga2027_md4_01",
+    "external_match_id": 564667,
+    "home": "Real Betis",
+    "away": "Real Madrid",
+    "home_full": "Real Betis Balompi\u00e9",
+    "away_full": "Real Madrid CF",
+    "kickoff_ts": 1788548400,
+    "matchday": 4
+  },
+  {
+    "match_id": "laliga2027_md4_02",
+    "external_match_id": 564663,
+    "home": "Athletic Bilbao",
+    "away": "Atletico Madrid",
+    "home_full": "Athletic Club",
+    "away_full": "Club Atl\u00e9tico de Madrid",
+    "kickoff_ts": 1788617700,
+    "matchday": 4
+  },
+  {
+    "match_id": "laliga2027_md4_03",
+    "external_match_id": 564660,
+    "home": "Rayo Vallecano",
+    "away": "Racing Santander",
+    "home_full": "Rayo Vallecano de Madrid",
+    "away_full": "Real Racing Club de Santander",
+    "kickoff_ts": 1788625800,
+    "matchday": 4
+  },
+  {
+    "match_id": "laliga2027_md4_04",
+    "external_match_id": 564662,
+    "home": "Villarreal",
+    "away": "Deportivo La Coruna",
+    "home_full": "Villarreal CF",
+    "away_full": "RC Deportivo La Coru\u00f1a",
+    "kickoff_ts": 1788634800,
+    "matchday": 4
+  },
+  {
+    "match_id": "laliga2027_md4_05",
+    "external_match_id": 564659,
+    "home": "Valencia",
+    "away": "Barcelona",
+    "home_full": "Valencia CF",
+    "away_full": "FC Barcelona",
+    "kickoff_ts": 1788704100,
+    "matchday": 4
+  },
+  {
+    "match_id": "laliga2027_md4_06",
+    "external_match_id": 564664,
+    "home": "Alaves",
+    "away": "Osasuna",
+    "home_full": "Deportivo Alav\u00e9s",
+    "away_full": "CA Osasuna",
+    "kickoff_ts": 1788712200,
+    "matchday": 4
+  },
+  {
+    "match_id": "laliga2027_md4_07",
+    "external_match_id": 564666,
+    "home": "Malaga",
+    "away": "Levante",
+    "home_full": "M\u00e1laga CF",
+    "away_full": "Levante UD",
+    "kickoff_ts": 1788712200,
+    "matchday": 4
+  },
+  {
+    "match_id": "laliga2027_md4_08",
+    "external_match_id": 564661,
+    "home": "Espanyol",
+    "away": "Sevilla",
+    "home_full": "RCD Espanyol de Barcelona",
+    "away_full": "Sevilla FC",
+    "kickoff_ts": 1788721200,
+    "matchday": 4
+  },
+  {
+    "match_id": "laliga2027_md4_09",
+    "external_match_id": 564665,
+    "home": "Getafe",
+    "away": "Celta Vigo",
+    "home_full": "Getafe CF",
+    "away_full": "RC Celta de Vigo",
+    "kickoff_ts": 1788800400,
+    "matchday": 4
+  },
+  {
+    "match_id": "laliga2027_md4_10",
+    "external_match_id": 564658,
+    "home": "Elche",
+    "away": "Real Sociedad",
+    "home_full": "Elche CF",
+    "away_full": "Real Sociedad de F\u00fatbol",
+    "kickoff_ts": 1788809400,
+    "matchday": 4
+  },
+  {
+    "match_id": "laliga2027_md5_01",
+    "external_match_id": 564668,
+    "home": "Getafe",
+    "away": "Deportivo La Coruna",
+    "home_full": "Getafe CF",
+    "away_full": "RC Deportivo La Coru\u00f1a",
+    "kickoff_ts": 1789257600,
+    "matchday": 5
+  },
+  {
+    "match_id": "laliga2027_md5_02",
+    "external_match_id": 564669,
+    "home": "Sevilla",
+    "away": "Valencia",
+    "home_full": "Sevilla FC",
+    "away_full": "Valencia CF",
+    "kickoff_ts": 1789257600,
+    "matchday": 5
+  },
+  {
+    "match_id": "laliga2027_md5_03",
+    "external_match_id": 564670,
+    "home": "Racing Santander",
+    "away": "Alaves",
+    "home_full": "Real Racing Club de Santander",
+    "away_full": "Deportivo Alav\u00e9s",
+    "kickoff_ts": 1789257600,
+    "matchday": 5
+  },
+  {
+    "match_id": "laliga2027_md5_04",
+    "external_match_id": 564671,
+    "home": "Villarreal",
+    "away": "Real Betis",
+    "home_full": "Villarreal CF",
+    "away_full": "Real Betis Balompi\u00e9",
+    "kickoff_ts": 1789257600,
+    "matchday": 5
+  },
+  {
+    "match_id": "laliga2027_md5_05",
+    "external_match_id": 564672,
+    "home": "Celta Vigo",
+    "away": "Malaga",
+    "home_full": "RC Celta de Vigo",
+    "away_full": "M\u00e1laga CF",
+    "kickoff_ts": 1789257600,
+    "matchday": 5
+  },
+  {
+    "match_id": "laliga2027_md5_06",
+    "external_match_id": 564673,
+    "home": "Osasuna",
+    "away": "Espanyol",
+    "home_full": "CA Osasuna",
+    "away_full": "RCD Espanyol de Barcelona",
+    "kickoff_ts": 1789257600,
+    "matchday": 5
+  },
+  {
+    "match_id": "laliga2027_md5_07",
+    "external_match_id": 564674,
+    "home": "Real Sociedad",
+    "away": "Atletico Madrid",
+    "home_full": "Real Sociedad de F\u00fatbol",
+    "away_full": "Club Atl\u00e9tico de Madrid",
+    "kickoff_ts": 1789257600,
+    "matchday": 5
+  },
+  {
+    "match_id": "laliga2027_md5_08",
+    "external_match_id": 564675,
+    "home": "Levante",
+    "away": "Barcelona",
+    "home_full": "Levante UD",
+    "away_full": "FC Barcelona",
+    "kickoff_ts": 1789257600,
+    "matchday": 5
+  },
+  {
+    "match_id": "laliga2027_md5_09",
+    "external_match_id": 564676,
+    "home": "Athletic Bilbao",
+    "away": "Elche",
+    "home_full": "Athletic Club",
+    "away_full": "Elche CF",
+    "kickoff_ts": 1789257600,
+    "matchday": 5
+  },
+  {
+    "match_id": "laliga2027_md5_10",
+    "external_match_id": 564677,
+    "home": "Real Madrid",
+    "away": "Rayo Vallecano",
+    "home_full": "Real Madrid CF",
+    "away_full": "Rayo Vallecano de Madrid",
+    "kickoff_ts": 1789257600,
+    "matchday": 5
+  }
+]
