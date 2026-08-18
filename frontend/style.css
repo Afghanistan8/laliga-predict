@@ -881,6 +881,20 @@ main {
   margin: var(--sp-3) 0 0;
 }
 
+.status-badge.is-muted { background: var(--bg-input); color: var(--fg-muted); }
+
+/* ──────────────  Postponement (mark_postponed) panel ────────────── */
+.postpone-panel {
+  margin-top: var(--sp-8);
+  padding: var(--sp-6);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-card);
+}
+.postpone-hint { margin: var(--sp-2) 0 var(--sp-4); color: var(--fg-muted); font-size: 14px; line-height: 1.55; }
+.postpone-panel code { font-family: var(--font-mono); font-size: 0.9em; background: var(--bg-input); padding: 1px 5px; border-radius: 4px; }
+
 /* ──────────────  My-prediction panel ────────────── */
 
 .my-prediction-panel {

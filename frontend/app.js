@@ -34,6 +34,7 @@ import {
   submitPrediction,
   claim,
   refund,
+  markPostponed,
   toWei,
   fromWei,
   formatGen,
@@ -398,15 +399,26 @@ async function renderMatchDetail(matchId) {
     currentPools = { home: 0n, draw: 0n, away: 0n, total: 0n };
   }
 
+  // The mirror status may carry an OFF-CHAIN postponement hint from the
+  // live-scores cron ('postponed_pending'). Preserve it separately: per Pavel
+  // Kolosov's review, this is NOT the refund state and must never enable
+  // refunds on its own.
+  const mirrorStatus = currentMatch.status;
+  currentMatch.offchain_postponed =
+    mirrorStatus === 'postponed_pending' || mirrorStatus === 'postponed';
+  currentMatch.onchain_kickoff_ts = Number(currentMatch.kickoff_ts || 0);
+
   // Authoritative status/result from the CONTRACT (not the mirror), so the
   // Claim/Refund buttons only enable when the chain actually says so — a stale
-  // Supabase row can never surface a button that would revert.
+  // Supabase row can never surface a button that would revert. `status` after
+  // this is the ON-CHAIN state: 'open' | 'resolved' | 'refunding'.
   try {
     const info = await readMatchInfo(currentMatch.contract_address);
     if (info && info.status) {
-      currentMatch.status = info.status;                 // 'open'|'resolved'|'refunding'
+      currentMatch.status = info.status;                 // AUTHORITATIVE on-chain status
       currentMatch.result = info.result || currentMatch.result;
       if (info.final_score) currentMatch.final_score = info.final_score;
+      if (info.kickoff_ts) currentMatch.onchain_kickoff_ts = Number(info.kickoff_ts);
     }
   } catch (e) { console.warn('on-chain match info read failed:', e.message); }
 
@@ -470,10 +482,20 @@ function matchDetailHtml(m, pools, mine, state) {
   const timeLabel = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
   const stageLabel = m.matchday ? `Matchday ${m.matchday}` : 'La Liga 26/27';
 
+  const POSTPONE_GRACE_SECS = 10800; // 3h — matches the contract
   const total = Number(pools.total) || 0;
   const isResolved = m.status === 'resolved' || m.status === 'finished';
-  const isRefunding = m.status === 'refunding' || m.status === 'postponed';
-  const canPredict = (m.status === 'scheduled' || m.status === 'open') && !mine;
+  // ON-CHAIN refund state ONLY. An off-chain 'postponed'/'postponed_pending'
+  // label never counts as refunding (Pavel Kolosov review).
+  const isRefunding = m.status === 'refunding';
+  // Off-chain hint: a source flagged it postponed, but the chain is still open.
+  const isPostponedPending = m.offchain_postponed && m.status === 'open';
+  // mark_postponed() is callable while the chain is OPEN and past kickoff+grace.
+  const nowSec = Math.floor(Date.now() / 1000);
+  const kickoff = Number(m.onchain_kickoff_ts || m.kickoff_ts || 0);
+  const canMarkPostponed = m.status === 'open' && nowSec >= kickoff + POSTPONE_GRACE_SECS;
+  const canPredict = (m.status === 'scheduled' || m.status === 'open') && !mine
+    && nowSec < kickoff;   // never offer staking once kickoff has passed
   const liveScore = (m.status === 'live' || m.status === 'finished' || m.status === 'resolved')
     ? `<span class="live-score-display">${m.live_score_home ?? 0} <span class="live-score-sep">·</span> ${m.live_score_away ?? 0}</span>`
     : '';
@@ -482,8 +504,10 @@ function matchDetailHtml(m, pools, mine, state) {
     : isResolved
       ? `<span class="status-badge is-resolved">FT · ${m.result?.toUpperCase()}</span>`
       : isRefunding
-        ? `<span class="status-badge is-warning">REFUNDING</span>`
-        : `<span class="status-badge">${dateLabel} · ${timeLabel}</span>`;
+        ? `<span class="status-badge is-warning">REFUNDING · claim your stake</span>`
+        : isPostponedPending
+          ? `<span class="status-badge is-muted">POSTPONED · awaiting on-chain confirmation</span>`
+          : `<span class="status-badge">${dateLabel} · ${timeLabel}</span>`;
 
   return `
     <div class="match-detail">
@@ -509,11 +533,13 @@ function matchDetailHtml(m, pools, mine, state) {
 
       ${canPredict ? renderPredictForm(m, pools, state) : ''}
 
-      ${!canPredict && !mine ? `
+      ${postponePanelHtml(m, state, canMarkPostponed, isPostponedPending)}
+
+      ${!canPredict && !mine && !isPostponedPending && !canMarkPostponed ? `
         <div class="empty-state" style="margin-top: var(--sp-8);">
           ${m.status === 'live' ? 'Predictions are closed — match is live.' :
             isResolved ? 'Predictions are closed — match has ended.' :
-            isRefunding ? 'This match is being refunded.' :
+            isRefunding ? 'This match is being refunded — claim your stake below.' :
             'Predictions are not currently open.'}
         </div>
       ` : ''}
@@ -545,9 +571,41 @@ function poolBar(label, team, value, total) {
   `;
 }
 
+// Permissionless postponement panel — the real application path for
+// mark_postponed() (Pavel Kolosov review). Shown only while the market is OPEN
+// on-chain; it can never appear over a resolved or already-refunding market.
+// It opens refunds by asking the CONTRACT to verify — it never flips the UI to
+// a refund state by itself.
+function postponePanelHtml(m, state, canMarkPostponed, isPostponedPending) {
+  if (m.status !== 'open') return '';
+  if (!canMarkPostponed && !isPostponedPending) return '';
+  const connected = Boolean(state.address);
+  const onNet = state.isStudionet;
+  const hint = isPostponedPending
+    ? `A results source lists this fixture as <strong>postponed / called off</strong>. That is an off-chain signal only — <strong>refunds are not open yet</strong>. Confirm it on-chain to open refunds.`
+    : `This match is past kickoff + 3h and still isn't settled. If it was postponed or abandoned, anyone can open the refund path — it's permissionless.`;
+  const label = !connected ? 'Connect wallet to confirm'
+    : !onNet ? 'Switch to Bradbury'
+    : !canMarkPostponed ? 'Available 3h after kickoff'
+    : 'Confirm postponement on-chain';
+  const disabled = !connected || !onNet || !canMarkPostponed;
+  return `
+    <div class="postpone-panel">
+      <p class="eyebrow">Postponement</p>
+      <p class="postpone-hint">${hint}</p>
+      <button class="secondary-button" id="mark-postponed-btn"${disabled ? ' disabled' : ''}>${label}</button>
+      <p class="predict-disclaimer">
+        Runs <code>mark_postponed()</code>: the contract re-checks BBC + ESPN under consensus and opens
+        refunds <strong>only</strong> if both confirm the game wasn't played. Any finished result blocks it.
+      </p>
+    </div>`;
+}
+
 function renderMyPredictionPanel(mine, m) {
   const isResolved = m.status === 'resolved' || m.status === 'finished';
-  const isRefunding = m.status === 'refunding' || m.status === 'postponed';
+  // Refund is offered ONLY when the CONTRACT itself reports 'refunding'. An
+  // off-chain 'postponed' label must never enable it (Pavel Kolosov review).
+  const isRefunding = m.status === 'refunding';
   const won = isResolved && m.result === mine.pick;
   const lost = isResolved && m.result && m.result !== mine.pick;
 
@@ -715,6 +773,25 @@ function attachMatchDetailEvents() {
       showToast('Refund claimed');
       await renderMatchDetail(currentMatch.match_id);
     } catch (err) { showToast(err.message || 'Refund failed', 'error'); e.target.disabled = false; e.target.textContent = 'Claim refund'; }
+  });
+
+  // Real application path for mark_postponed(): submit, WAIT for finality (the
+  // helper waits for ACCEPTED), then re-render — which re-reads get_match_info.
+  // Refunds appear ONLY if that fresh on-chain read now says 'refunding'.
+  document.getElementById('mark-postponed-btn')?.addEventListener('click', async (e) => {
+    e.target.disabled = true; e.target.textContent = 'Confirming on-chain…';
+    try {
+      await markPostponed(currentMatch.contract_address);   // waits for finality
+      await renderMatchDetail(currentMatch.match_id);       // re-reads on-chain status
+      if (currentMatch.status === 'refunding') {
+        showToast('Postponement confirmed on-chain — refunds are now open.');
+      } else {
+        showToast('Submitted, but the sources did not confirm a postponement. The market stays open.', 'error');
+      }
+    } catch (err) {
+      showToast(err.message || 'mark_postponed failed', 'error');
+      e.target.disabled = false; e.target.textContent = 'Confirm postponement on-chain';
+    }
   });
 }
 

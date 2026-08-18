@@ -34,9 +34,10 @@ function mapStatus(fd) {
     case 'IN_PLAY':
     case 'PAUSED':      return 'live';
     case 'FINISHED':    return 'finished';
+    // Off-chain hint only — never the on-chain refund state. See cron/api/live-scores.js.
     case 'POSTPONED':
     case 'CANCELLED':
-    case 'SUSPENDED':   return 'postponed';
+    case 'SUSPENDED':   return 'postponed_pending';
     default:            return 'scheduled';
   }
 }

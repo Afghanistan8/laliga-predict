@@ -6,6 +6,36 @@ import { getReadClient, getWriteClient, ensureWalletAuthorized, ensureWalletChai
 
 export type Pools = { home: bigint; draw: bigint; away: bigint; total: bigint };
 
+export type OnchainMatchInfo = {
+  status: string;        // 'open' | 'resolved' | 'refunding' (authoritative)
+  result: string;
+  final_score: string;
+  kickoff_ts: number;
+};
+
+// Authoritative on-chain status — the ONLY source that may open refunds. The
+// Supabase mirror can carry an off-chain 'postponed_pending' hint, but only this
+// read (or a mirror value copied FROM it) decides claim/refund UI. (Pavel review)
+export async function readMatchInfo(contractAddress: string): Promise<OnchainMatchInfo | null> {
+  try {
+    const c = getReadClient();
+    const r = (await c.readContract({
+      address: contractAddress as `0x${string}`,
+      functionName: "get_match_info",
+      args: [],
+    })) as { status?: unknown; result?: unknown; final_score?: unknown; kickoff_ts?: unknown };
+    return {
+      status: String(r?.status ?? ""),
+      result: String(r?.result ?? ""),
+      final_score: String(r?.final_score ?? ""),
+      kickoff_ts: Number(r?.kickoff_ts ?? 0),
+    };
+  } catch (e) {
+    console.warn("readMatchInfo error:", (e as Error).message);
+    return null;
+  }
+}
+
 export async function readPools(contractAddress: string): Promise<Pools> {
   try {
     const c = getReadClient();
@@ -71,4 +101,16 @@ export function refund(
   contractAddress: string
 ) {
   return write(address, provider, contractAddress, "refund", [], 0n);
+}
+
+// Real application path for mark_postponed() (Pavel Kolosov review). Permissionless;
+// `write()` waits for finality (ACCEPTED). It does NOT open refunds itself — the
+// caller re-reads readMatchInfo() afterwards and only shows refunds if the
+// contract's own status is now 'refunding'.
+export function markPostponed(
+  address: string,
+  provider: Eip1193Provider | undefined,
+  contractAddress: string
+) {
+  return write(address, provider, contractAddress, "mark_postponed", [], 0n);
 }

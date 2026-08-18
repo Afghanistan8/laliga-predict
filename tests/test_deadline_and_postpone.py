@@ -324,6 +324,36 @@ def test_postpone_unknown_reverts(vm, c):
     assert c.get_match_info()["status"] == "open"
 
 
+def test_refund_blocked_until_contract_reports_refunding(vm, c):
+    # Pavel Kolosov review: refunds must be exposed ONLY after the contract
+    # itself reports STATUS_REFUNDING. While the market is still 'open' — even
+    # past the grace window, when an off-chain source might already call it
+    # "postponed" — refund() must revert. It opens only once a VERIFIED
+    # mark_postponed() has flipped the on-chain status.
+    _at(vm, KICKOFF_TS - 3600)
+    _stake(vm, c, "alice", "home")
+    _stake(vm, c, "bob", "away")
+
+    # Past grace, still open on-chain: refund is NOT available.
+    _at(vm, KICKOFF_TS + GRACE + 60)
+    vm.sender = create_address("alice")
+    with vm.expect_revert("refunds not available"):
+        c.refund()
+    assert c.get_match_info()["status"] == "open"
+
+    # A verified postponement flips the contract to refunding.
+    _mock_postponed_sources(vm, "postponed")
+    vm.sender = create_address("anyone")
+    c.mark_postponed()
+    assert c.get_match_info()["status"] == "refunding"
+
+    # ONLY now does refund() succeed.
+    vm.deal(vm._contract_address, 2 * TWO_GEN)
+    vm.sender = create_address("alice")
+    c.refund()
+    assert c.get_my_prediction(create_address("alice"))["claimed"] is True
+
+
 def test_postpone_cannot_unwind_resolved(vm, c):
     # Once resolved, mark_postponed is refused (status gate).
     _at(vm, KICKOFF_TS - 3600)
@@ -492,6 +522,7 @@ _ALL = [
     test_postpone_confirmed_opens_refunds,
     test_postpone_when_actually_finished_reverts,
     test_postpone_unknown_reverts,
+    test_refund_blocked_until_contract_reports_refunding,
     test_postpone_cannot_unwind_resolved,
     test_postpone_abandoned_after_play_opens_refunds,
     test_postpone_conflict_primary_postponed_secondary_finished_reverts,

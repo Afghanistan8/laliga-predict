@@ -4,7 +4,7 @@ import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useAccount, useSwitchChain } from "wagmi";
 import { getMatch, getAIPrediction, readMyPrediction, sb, type Match, type AIPrediction, type PredictionRow } from "@/lib/supabase";
-import { readPools, submitPrediction, claim, refund, type Pools } from "@/lib/market";
+import { readPools, readMatchInfo, submitPrediction, claim, refund, markPostponed, type Pools, type OnchainMatchInfo } from "@/lib/market";
 import { toWei, formatGen, computeExpectedPayout } from "@/lib/format";
 import { MIN_STAKE_GEN } from "@/lib/config";
 import { bradbury } from "@/config/wagmi";
@@ -24,6 +24,7 @@ export default function MatchPage({ params }: { params: Promise<{ id: string }> 
   const [ai, setAi] = useState<AIPrediction | null>(null);
   const [pools, setPools] = useState<Pools>(ZERO);
   const [mine, setMine] = useState<PredictionRow | null>(null);
+  const [onchain, setOnchain] = useState<OnchainMatchInfo | null>(null);
 
   const [pick, setPick] = useState<"home" | "draw" | "away" | null>(null);
   const [stake, setStake] = useState("");
@@ -36,7 +37,12 @@ export default function MatchPage({ params }: { params: Promise<{ id: string }> 
     setMatch(m);
     if (!m) return;
     getAIPrediction(id).then(setAi).catch(() => {});
-    if (m.contract_address) readPools(m.contract_address).then(setPools).catch(() => {});
+    if (m.contract_address) {
+      readPools(m.contract_address).then(setPools).catch(() => {});
+      // Authoritative on-chain status — decides claim/refund, never the mirror's
+      // off-chain 'postponed_pending' hint (Pavel Kolosov review).
+      readMatchInfo(m.contract_address).then(setOnchain).catch(() => {});
+    }
     setMine(address ? await readMyPrediction(id, address) : null);
   }, [id, address]);
 
@@ -60,9 +66,19 @@ export default function MatchPage({ params }: { params: Promise<{ id: string }> 
   const timeLabel = date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", timeZoneName: "short" });
   const stageLabel = m.matchday ? `Matchday ${m.matchday}` : "La Liga 26/27";
   const total = Number(pools.total) || 0;
-  const isResolved = m.status === "resolved" || m.status === "finished";
-  const isRefunding = m.status === "refunding" || m.status === "postponed";
-  const canPredict = m.status === "scheduled" && !mine;
+  const POSTPONE_GRACE_SECS = 10800; // 3h — matches the contract
+  const nowSec = Math.floor(Date.now() / 1000);
+  const chainStatus = onchain?.status || null;             // 'open'|'resolved'|'refunding' when loaded
+  const kickoff = Number(onchain?.kickoff_ts || m.kickoff_ts || 0);
+
+  const isResolved = m.status === "resolved" || m.status === "finished"; // display (FT / live score)
+  // Refund is exposed ONLY when the CONTRACT reports 'refunding'. An off-chain
+  // 'postponed'/'postponed_pending' mirror label never enables it.
+  const isRefunding = chainStatus ? chainStatus === "refunding" : m.status === "refunding";
+  const offchainPostponed = m.status === "postponed_pending" || m.status === "postponed";
+  const isPostponedPending = offchainPostponed && !isRefunding && chainStatus !== "resolved";
+  const canMarkPostponed = chainStatus === "open" && nowSec >= kickoff + POSTPONE_GRACE_SECS;
+  const canPredict = m.status === "scheduled" && !mine && nowSec < kickoff;
   const isLiveish = m.status === "live" || m.status === "finished" || m.status === "resolved";
 
   async function activeProvider(): Promise<Eip1193Provider | undefined> {
@@ -122,6 +138,30 @@ export default function MatchPage({ params }: { params: Promise<{ id: string }> 
     setBusy(false);
   }
 
+  // Real application path for mark_postponed(): submit, wait for finality (the
+  // write() helper waits for ACCEPTED), then RE-READ on-chain status. Refunds
+  // open only if the contract itself now reports 'refunding'.
+  async function onMarkPostponed() {
+    if (!m.contract_address) return;
+    if (!address) { toast("Connect a wallet first", "error"); return; }
+    setBusy(true);
+    try {
+      const provider = await activeProvider();
+      await markPostponed(address, provider, m.contract_address);   // waits for finality
+      const fresh = await readMatchInfo(m.contract_address);
+      setOnchain(fresh);
+      if (fresh?.status === "refunding") {
+        // Copy the verified on-chain state into the mirror so other views agree.
+        await sb.from("matches").update({ status: "refunding", result: "", final_score: "" }).eq("match_id", m.match_id);
+        toast("Postponement confirmed on-chain — refunds are now open.");
+      } else {
+        toast("Submitted, but the sources didn't confirm a postponement. The market stays open.", "error");
+      }
+      await load();
+    } catch (e) { toast((e as Error).message || "mark_postponed failed", "error"); }
+    setBusy(false);
+  }
+
   const won = isResolved && mine && m.result === mine.pick;
   const lost = isResolved && mine && m.result && m.result !== mine.pick;
 
@@ -175,7 +215,9 @@ export default function MatchPage({ params }: { params: Promise<{ id: string }> 
             ) : isResolved ? (
               <span className="status-badge is-resolved">FT · {m.result?.toUpperCase()}</span>
             ) : isRefunding ? (
-              <span className="status-badge is-warning">REFUNDING</span>
+              <span className="status-badge is-warning">REFUNDING · claim your stake</span>
+            ) : isPostponedPending ? (
+              <span className="status-badge is-muted">POSTPONED · awaiting on-chain confirmation</span>
             ) : (
               <span className="status-badge">{dateLabel} · {timeLabel}</span>
             )}
@@ -272,11 +314,40 @@ export default function MatchPage({ params }: { params: Promise<{ id: string }> 
           </div>
         )}
 
-        {!canPredict && !mine && (
+        {/* Real application path for mark_postponed() — permissionless, shown only
+            while the market is OPEN on-chain. Opens refunds by asking the contract
+            to verify; never flips the UI to a refund state on its own. */}
+        {m.contract_address && (canMarkPostponed || isPostponedPending) && chainStatus === "open" && (
+          <div className="postpone-panel">
+            <p className="eyebrow">Postponement</p>
+            <p className="postpone-hint">
+              {isPostponedPending
+                ? <>A results source lists this fixture as <strong>postponed / called off</strong>. That is an off-chain signal only — <strong>refunds are not open yet</strong>. Confirm it on-chain to open refunds.</>
+                : <>This match is past kickoff + 3h and still isn&apos;t settled. If it was postponed or abandoned, anyone can open the refund path — it&apos;s permissionless.</>}
+            </p>
+            <button
+              className="secondary-button"
+              disabled={busy || !isConnected || !onBradbury || !canMarkPostponed}
+              onClick={isConnected && !onBradbury ? () => switchChain({ chainId: bradbury.id }) : onMarkPostponed}
+            >
+              {!isConnected ? "Connect wallet to confirm"
+                : !onBradbury ? "Switch to Bradbury"
+                : !canMarkPostponed ? "Available 3h after kickoff"
+                : busy ? "Confirming…"
+                : "Confirm postponement on-chain"}
+            </button>
+            <p className="predict-disclaimer">
+              Runs <code>mark_postponed()</code>: the contract re-checks BBC + ESPN under consensus and opens
+              refunds <strong>only</strong> if both confirm the game wasn&apos;t played. Any finished result blocks it.
+            </p>
+          </div>
+        )}
+
+        {!canPredict && !mine && !isPostponedPending && !canMarkPostponed && (
           <div className="empty-state" style={{ marginTop: "var(--sp-8)" }}>
             {m.status === "live" ? "Predictions are closed — match is live."
               : isResolved ? "Predictions are closed — match has ended."
-              : isRefunding ? "This match is being refunded."
+              : isRefunding ? "This match is being refunded — claim your stake below."
               : "Predictions are not currently open."}
           </div>
         )}

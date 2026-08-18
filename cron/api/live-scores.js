@@ -13,9 +13,14 @@ function mapStatus(fd) {
     case 'IN_PLAY':
     case 'PAUSED':      return 'live';
     case 'FINISHED':    return 'finished';
+    // Off-chain postponement HINT only (from football-data). Per Pavel Kolosov's
+    // review: this must NOT be confused with the on-chain 'refunding' state.
+    // 'postponed_pending' means "a source says this was called off" — refunds
+    // are NOT claimable until mark_postponed() runs on-chain and the contract
+    // itself reports STATUS_REFUNDING. The mirror never writes 'refunding' here.
     case 'POSTPONED':
     case 'CANCELLED':
-    case 'SUSPENDED':   return 'postponed';
+    case 'SUSPENDED':   return 'postponed_pending';
     default:            return 'scheduled';
   }
 }

@@ -18,7 +18,13 @@ create table if not exists public.matches (
   kickoff_ts        bigint,
   matchday          int,
   external_match_id bigint,
-  status            text not null default 'scheduled',  -- scheduled|live|finished|resolved|refunding|postponed
+  status            text not null default 'scheduled',
+  -- Lifecycle. IMPORTANT (Pavel Kolosov review): 'refunding' is the ONLY
+  -- claimable refund state, and it is copied from the CONTRACT (get_match_info)
+  -- only after a verified mark_postponed(). 'postponed_pending' is an OFF-CHAIN
+  -- hint written by live-scores (football-data POSTPONED/CANCELLED/SUSPENDED) —
+  -- it is NOT claimable and must never be treated as 'refunding' by any client.
+  --   scheduled | live | finished | resolved | refunding | postponed_pending
   result            text,                                -- home|draw|away
   final_score       text,
   live_score_home   int,

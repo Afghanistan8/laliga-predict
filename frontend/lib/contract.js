@@ -223,3 +223,29 @@ export async function refund(contractAddress) {
     throw new Error(extractRevertReason(err));
   }
 }
+
+// Permissionless, source-verified postponement. This is the real application
+// path for mark_postponed() (Pavel Kolosov review): anyone can submit it, we
+// WAIT for finality (ACCEPTED), and the caller then re-reads get_match_info to
+// decide what to show. Crucially, this does NOT itself open refunds — it only
+// asks the contract to verify the postponement against BBC + ESPN. Refunds are
+// exposed by the UI only once the contract's OWN status becomes 'refunding'.
+export async function markPostponed(contractAddress) {
+  const c = await writeClient();
+  try {
+    const txHash = await c.writeContract({
+      address: contractAddress,
+      functionName: 'mark_postponed',
+      args: [],
+    });
+    const receipt = await c.waitForTransactionReceipt({
+      hash: txHash,
+      status: 'ACCEPTED',
+      retries: 60,
+      interval: 5000,
+    });
+    return { txHash, receipt };
+  } catch (err) {
+    throw new Error(extractRevertReason(err));
+  }
+}
